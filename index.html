@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budgetkalkylator - Hantera din ekonomi enkelt</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-calculator"></i>
+                <span>Budgetkalkylator</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#hero" class="nav-link">Hem</a></li>
+                <li><a href="#calculator" class="nav-link">Skapa kalkyl</a></li>
+                <li><a href="#about" class="nav-link">Om appen</a></li>
+                <li><a href="#contact" class="nav-link">Kontakt</a></li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Hantera din ekonomi <span class="highlight">enkelt och smart</span></h1>
+                <p class="hero-description">
+                    Skapa en tydlig budget, kategorisera dina utgifter och få kontroll över din ekonomi. 
+                    Allt du behöver för att planera din ekonomi på ett enkelt sätt.
+                </p>
+                <button class="cta-button" onclick="scrollToCalculator()">
+                    <i class="fas fa-play"></i>
+                    Kom igång nu
+                </button>
+            </div>
+            <div class="hero-illustration">
+                <svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Budget illustration -->
+                    <defs>
+                        <linearGradient id="moneyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#4E73DF;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#1CC88A;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- Calculator base -->
+                    <rect x="100" y="50" width="200" height="200" rx="15" fill="#F8F9FC" stroke="#4E73DF" stroke-width="3"/>
+                    
+                    <!-- Screen -->
+                    <rect x="120" y="70" width="160" height="60" rx="5" fill="#5A5C69"/>
+                    <text x="200" y="105" text-anchor="middle" fill="#F8F9FC" font-size="14" font-family="Arial">BUDGET: +5,000</text>
+                    
+                    <!-- Buttons -->
+                    <circle cx="140" cy="160" r="15" fill="#4E73DF"/>
+                    <circle cx="180" cy="160" r="15" fill="#4E73DF"/>
+                    <circle cx="220" cy="160" r="15" fill="#4E73DF"/>
+                    <circle cx="260" cy="160" r="15" fill="#4E73DF"/>
+                    
+                    <circle cx="140" cy="190" r="15" fill="#4E73DF"/>
+                    <circle cx="180" cy="190" r="15" fill="#4E73DF"/>
+                    <circle cx="220" cy="190" r="15" fill="#4E73DF"/>
+                    <circle cx="260" cy="190" r="15" fill="#1CC88A"/>
+                    
+                    <circle cx="140" cy="220" r="15" fill="#4E73DF"/>
+                    <circle cx="180" cy="220" r="15" fill="#4E73DF"/>
+                    <circle cx="220" cy="220" r="15" fill="#4E73DF"/>
+                    
+                    <!-- Money symbols -->
+                    <text x="80" y="40" font-size="20" fill="#1CC88A">💰</text>
+                    <text x="320" y="80" font-size="16" fill="#4E73DF">📊</text>
+                    <text x="60" y="180" font-size="18" fill="#1CC88A">💳</text>
+                    <text x="340" y="200" font-size="16" fill="#4E73DF">📈</text>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- Calculator Section -->
+    <section id="calculator" class="calculator-section">
+        <div class="container">
+            <h2 class="section-title">Skapa din budgetkalkyl</h2>
+            
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="summary-card income">
+                    <div class="card-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Totala inkomster</h3>
+                        <p class="amount" id="totalIncome">0 kr</p>
+                    </div>
+                </div>
+                
+                <div class="summary-card expense">
+                    <div class="card-icon">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Totala utgifter</h3>
+                        <p class="amount" id="totalExpenses">0 kr</p>
+                    </div>
+                </div>
+                
+                <div class="summary-card balance">
+                    <div class="card-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Saldo</h3>
+                        <p class="amount" id="totalBalance">0 kr</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Budget Form -->
+            <div class="budget-form-container">
+                <div class="form-section">
+                    <h3><i class="fas fa-plus-circle"></i> Lägg till transaktion</h3>
+                    <form id="budgetForm" class="budget-form">
+                        <div class="form-group">
+                            <label for="description">Beskrivning</label>
+                            <input type="text" id="description" placeholder="T.ex. Matinköp, Hyra, Lön..." required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="amount">Belopp (kr)</label>
+                                <input type="number" id="amount" placeholder="0" step="0.01" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="type">Typ</label>
+                                <select id="type" required>
+                                    <option value="">Välj typ</option>
+                                    <option value="income">Inkomst</option>
+                                    <option value="expense">Utgift</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="category">Kategori</label>
+                            <select id="category" required>
+                                <option value="">Välj kategori</option>
+                                <option value="mat">🍕 Mat & Dryck</option>
+                                <option value="boende">🏠 Boende</option>
+                                <option value="transport">🚗 Transport</option>
+                                <option value="noje">🎬 Nöje & Fritid</option>
+                                <option value="halsa">💊 Hälsa & Vård</option>
+                                <option value="lon">💼 Lön</option>
+                                <option value="sparande">💰 Sparande</option>
+                                <option value="ovrigt">📝 Övrigt</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="add-button">
+                            <i class="fas fa-plus"></i>
+                            Lägg till
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Transactions List -->
+                <div class="transactions-section">
+                    <div class="transactions-header">
+                        <h3><i class="fas fa-list"></i> Dina transaktioner</h3>
+                        <button id="exportBtn" class="export-button" onclick="exportToCSV()">
+                            <i class="fas fa-download"></i>
+                            Exportera CSV
+                        </button>
+                    </div>
+                    <div id="transactionsList" class="transactions-list">
+                        <div class="empty-state">
+                            <i class="fas fa-wallet"></i>
+                            <p>Inga transaktioner än. Lägg till din första transaktion ovan!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Summary -->
+            <div class="category-summary" id="categorySummary">
+                <h3><i class="fas fa-chart-pie"></i> Kategoriöversikt</h3>
+                <div id="categoryCards" class="category-cards">
+                    <!-- Category cards will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <h2 class="section-title">Om Budgetkalkylator</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>
+                        Budgetkalkylator är en enkel och kraftfull webbapp för att hantera din personliga ekonomi. 
+                        Med vår intuitiva design kan du enkelt kategorisera dina inkomster och utgifter, 
+                        få en tydlig översikt över din ekonomiska situation och planera för framtiden.
+                    </p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Enkel budgethantering</li>
+                        <li><i class="fas fa-check"></i> Automatisk kategorisering</li>
+                        <li><i class="fas fa-check"></i> Responsiv design</li>
+                        <li><i class="fas fa-check"></i> Lokal datalagring</li>
+                        <li><i class="fas fa-check"></i> CSV-export</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <h2 class="section-title">Kontakt</h2>
+            <div class="contact-content">
+                <p>Har du frågor eller feedback? Vi hjälper gärna till!</p>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>info@budgetkalkylator.se</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>08-123 45 67</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Budgetkalkylator. Alla rättigheter förbehållna.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
