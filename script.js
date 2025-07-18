@@ -7,6 +7,8 @@ class BudgetCalculator {
         this.persons = this.loadPersons();
         this.accounts = this.loadAccounts();
         this.currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+        this.editMode = false;
+        this.editingId = null;
         
         this.init();
     }
@@ -148,21 +150,40 @@ class BudgetCalculator {
             return;
         }
         
-        const transaction = {
-            id: Date.now(),
-            description,
-            amount,
-            type,
-            category,
-            person,
-            account,
-            date: new Date().toISOString().split('T')[0],
-            month: this.currentMonth
-        };
-        
-        this.addTransaction(transaction);
-        this.clearForm();
-        this.showNotification('Transaktion tillagd!', 'success');
+        if (this.editMode && this.editingId) {
+            // Update existing transaction
+            const transactionData = {
+                description,
+                amount,
+                type,
+                category,
+                person,
+                account,
+                // Keep original date and month for existing transactions
+                date: this.transactions.find(t => t.id === this.editingId).date,
+                month: this.transactions.find(t => t.id === this.editingId).month
+            };
+            
+            this.updateTransaction(this.editingId, transactionData);
+            this.cancelEdit();
+        } else {
+            // Add new transaction
+            const transaction = {
+                id: Date.now(),
+                description,
+                amount,
+                type,
+                category,
+                person,
+                account,
+                date: new Date().toISOString().split('T')[0],
+                month: this.currentMonth
+            };
+            
+            this.addTransaction(transaction);
+            this.clearForm();
+            this.showNotification('Transaktion tillagd!', 'success');
+        }
     }
     
     showImportModal() {
@@ -635,6 +656,77 @@ class BudgetCalculator {
         this.showNotification('Transaktion borttagen', 'info');
     }
     
+    editTransaction(id) {
+        const transaction = this.transactions.find(t => t.id === id);
+        if (!transaction) return;
+        
+        // Enter edit mode
+        this.editMode = true;
+        this.editingId = id;
+        
+        // Pre-fill the form with transaction data
+        document.getElementById('description').value = transaction.description;
+        document.getElementById('amount').value = transaction.amount;
+        document.getElementById('type').value = transaction.type;
+        document.getElementById('person').value = transaction.person;
+        document.getElementById('account').value = transaction.account;
+        document.getElementById('category').value = transaction.category;
+        
+        // Update form appearance
+        const form = document.getElementById('budgetForm');
+        const submitButton = form.querySelector('button[type="submit"]');
+        const formTitle = form.closest('.form-section').querySelector('h3');
+        
+        submitButton.innerHTML = '<i class="fas fa-save"></i> Uppdatera';
+        submitButton.classList.add('update-button');
+        formTitle.innerHTML = '<i class="fas fa-edit"></i> Redigera transaktion';
+        
+        // Add cancel button if not exists
+        if (!form.querySelector('.cancel-edit-btn')) {
+            const cancelButton = document.createElement('button');
+            cancelButton.type = 'button';
+            cancelButton.className = 'cancel-edit-btn';
+            cancelButton.innerHTML = '<i class="fas fa-times"></i> Avbryt';
+            cancelButton.onclick = () => this.cancelEdit();
+            submitButton.parentNode.insertBefore(cancelButton, submitButton.nextSibling);
+        }
+        
+        // Scroll to form
+        form.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    cancelEdit() {
+        this.editMode = false;
+        this.editingId = null;
+        
+        // Reset form
+        document.getElementById('budgetForm').reset();
+        
+        // Reset form appearance
+        const form = document.getElementById('budgetForm');
+        const submitButton = form.querySelector('button[type="submit"]');
+        const formTitle = form.closest('.form-section').querySelector('h3');
+        const cancelButton = form.querySelector('.cancel-edit-btn');
+        
+        submitButton.innerHTML = '<i class="fas fa-plus"></i> Lägg till';
+        submitButton.classList.remove('update-button');
+        formTitle.innerHTML = '<i class="fas fa-plus-circle"></i> Lägg till transaktion';
+        
+        if (cancelButton) {
+            cancelButton.remove();
+        }
+    }
+    
+    updateTransaction(id, transactionData) {
+        const index = this.transactions.findIndex(t => t.id === id);
+        if (index !== -1) {
+            this.transactions[index] = { ...this.transactions[index], ...transactionData };
+            this.saveToLocalStorage();
+            this.updateDisplay();
+            this.showNotification('Transaktion uppdaterad', 'success');
+        }
+    }
+    
     saveToLocalStorage() {
         localStorage.setItem('budgetTransactions', JSON.stringify(this.transactions));
     }
@@ -710,6 +802,10 @@ class BudgetCalculator {
                         <div class="transaction-amount ${transaction.type}">
                             ${transaction.type === 'income' ? '+' : '-'}${this.formatCurrency(transaction.amount)}
                         </div>
+                        <button class="edit-button" onclick="calculator.editTransaction(${transaction.id})" 
+                                title="Redigera transaktion">
+                            <i class="fas fa-edit"></i>
+                        </button>
                         <button class="delete-button" onclick="calculator.deleteTransaction(${transaction.id})" 
                                 title="Ta bort transaktion">
                             <i class="fas fa-trash"></i>

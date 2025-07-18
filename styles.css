@@ -405,6 +405,45 @@ body {
     transform: scale(1.05);
 }
 
+.edit-button {
+    background-color: #F6C23E;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.edit-button:hover {
+    background-color: #dda20a;
+    transform: scale(1.05);
+}
+
+.cancel-edit-btn {
+    background-color: #858796;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+}
+
+.cancel-edit-btn:hover {
+    background-color: #6e707e;
+    transform: scale(1.05);
+}
+
+.update-button {
+    background-color: #1CC88A !important;
+}
+
+.update-button:hover {
+    background-color: #17a673 !important;
+}
+
 .empty-state {
     text-align: center;
     padding: 40px;
