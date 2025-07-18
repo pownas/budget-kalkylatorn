@@ -149,18 +149,26 @@
                             </div>
                         </div>
                         
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="person">Person</label>
+                                <select id="person" required>
+                                    <option value="">Välj person</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="account">Konto</label>
+                                <select id="account" required>
+                                    <option value="">Välj konto</option>
+                                </select>
+                            </div>
+                        </div>
+                        
                         <div class="form-group">
                             <label for="category">Kategori</label>
                             <select id="category" required>
                                 <option value="">Välj kategori</option>
-                                <option value="mat">🍕 Mat & Dryck</option>
-                                <option value="boende">🏠 Boende</option>
-                                <option value="transport">🚗 Transport</option>
-                                <option value="noje">🎬 Nöje & Fritid</option>
-                                <option value="halsa">💊 Hälsa & Vård</option>
-                                <option value="lon">💼 Lön</option>
-                                <option value="sparande">💰 Sparande</option>
-                                <option value="ovrigt">📝 Övrigt</option>
                             </select>
                         </div>
                         
@@ -175,15 +183,21 @@
                 <div class="transactions-section">
                     <div class="transactions-header">
                         <h3><i class="fas fa-list"></i> Dina transaktioner</h3>
-                        <button id="exportBtn" class="export-button" onclick="exportToCSV()">
-                            <i class="fas fa-download"></i>
-                            Exportera CSV
-                        </button>
+                        <div class="action-buttons">
+                            <button id="importBtn" class="import-button">
+                                <i class="fas fa-upload"></i>
+                                Importera CSV
+                            </button>
+                            <button id="exportBtn" class="export-button" onclick="exportToCSV()">
+                                <i class="fas fa-download"></i>
+                                Exportera CSV
+                            </button>
+                        </div>
                     </div>
                     <div id="transactionsList" class="transactions-list">
                         <div class="empty-state">
                             <i class="fas fa-wallet"></i>
-                            <p>Inga transaktioner än. Lägg till din första transaktion ovan!</p>
+                            <p>Inga transaktioner än. Lägg till din första transaktion ovan eller importera från CSV!</p>
                         </div>
                     </div>
                 </div>
