@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Min Ekonomi – Budget & Balans</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --primary: #6d28d9;
+      --primary-light: #a78bfa;
+      --secondary: #22d3ee;
+      --secondary-dark: #06b6d4;
+      --success: #34d399;
+      --bg: #f3f4f6;
+      --card: #f9fafb;
+      --text: #18181b;
+      --border: #d1d5db;
+      --danger: #f43f5e;
+      --accent: #4f46e5;
+      --accent-light: #a5b4fc;
+    }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      margin: 0; 
+      background: linear-gradient(135deg, var(--primary-light) 0%, var(--bg) 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(90deg, var(--primary), var(--secondary-dark));
+      color: white;
+      padding: 2rem 1rem 1.5rem 1rem;
+      text-align: center;
+      letter-spacing: 0.02em;
+      box-shadow: 0 2px 8px #0003;
+      border-radius: 0 0 1.5rem 1.5rem;
+    }
+    header h1 {
+      margin: 0 0 0.4em 0;
+      font-weight: 800;
+      font-size: 2.2em;
+      background: linear-gradient(90deg, var(--secondary) 0%, var(--primary-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    nav {
+      display: flex; 
+      justify-content: center; 
+      gap: 0.5rem; 
+      margin-top: -1rem;
+      background: none;
+    }
+    nav button {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-bottom: none;
+      padding: 0.8rem 1.2rem;
+      font-size: 1.05rem;
+      color: var(--primary);
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 1.2rem 1.2rem 0 0;
+      transition: all 0.18s;
+      outline: none;
+      margin-bottom: -2px;
+    }
+    nav button.active, nav button:focus {
+      background: linear-gradient(90deg, var(--primary-light) 30%, var(--secondary) 100%);
+      color: var(--accent);
+      border-bottom: 2px solid transparent;
+      box-shadow: 0 4px 12px #4f46e540;
+    }
+    main {
+      max-width: 830px; 
+      margin: 2rem auto; 
+      background: var(--card); 
+      padding: 2.5rem 1.5rem;
+      border-radius: 1.2rem;
+      box-shadow: 0 4px 24px #4f46e520;
+      min-height: 400px;
+    }
+    h2 {
+      margin-top: 0;
+      color: var(--accent);
+      letter-spacing: 0.01em;
+      font-size: 1.4em;
+      font-weight: 800;
+    }
+    .flex-row {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-bottom: 1.6rem;
+      background: white;
+      border-radius: 0.8rem;
+      overflow: hidden;
+      box-shadow: 0 2px 8px #06b6d420;
+    }
+    th, td {
+      border-bottom: 1px solid var(--border);
+      padding: 0.6rem 0.5rem;
+      text-align: left;
+      font-size: 1em;
+      vertical-align: middle;
+    }
+    th {
+      background: linear-gradient(90deg, var(--primary-light) 0%, var(--secondary) 70%);
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    tr:last-child td, tr:last-child th {
+      border-bottom: none;
+    }
+    .summary {
+      font-weight: bold;
+      background: var(--secondary);
+      color: var(--accent);
+      font-size: 1.06em;
+    }
+    .positive { color: var(--success); font-weight: 600; }
+    .negative { color: var(--danger); font-weight: 600; }
+    .diff-cell { font-weight: 600; }
+    .diagram-bar {
+      height: 18px; 
+      display: inline-block; 
+      vertical-align: middle; 
+      border-radius: 3px;
+      margin-right: .4em;
+    }
+    input[type="number"], input[type="text"] {
+      padding: 0.3em 0.5em;
+      font-size: 1em;
+      border: 1.5px solid var(--border);
+      border-radius: 0.5em;
+      background: #f3f4f6;
+      color: var(--text);
+      width: 90%;
+      transition: border 0.2s;
+    }
+    input[type="number"]:focus, input[type="text"]:focus {
+      border: 1.5px solid var(--primary);
+      outline: none;
+      background: #e0e7ef;
+      color: var(--primary);
+    }
+    .add-row-btn {
+      background: linear-gradient(90deg, var(--success) 40%, var(--secondary) 100%);
+      color: white;
+      border: none;
+      font-weight: 700;
+      border-radius: 0.8em;
+      padding: 0.4em 1.2em;
+      margin: 0.4em 0 1em 0;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background 0.2s, color 0.2s;
+      box-shadow: 0 2px 8px #06b6d430;
+    }
+    .add-row-btn:hover {
+      background: linear-gradient(90deg, var(--secondary-dark) 40%, var(--primary) 100%);
+      color: var(--success);
+    }
+    .remove-row-btn {
+      color: var(--danger);
+      background: none;
+      border: none;
+      font-size: 1.1em;
+      cursor: pointer;
+      font-weight: bold;
+      margin-left: 0.3em;
+      border-radius: 50%;
+      padding: 0 0.4em;
+      line-height: 1.3;
+      transition: background 0.15s;
+    }
+    .remove-row-btn:hover {
+      background: #fee2e2;
+    }
+    .section-title-bar {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+      margin-bottom: 0.2em;
+      margin-top: 2em;
+    }
+    .section-title-bar h3 {
+      margin: 0;
+      color: var(--primary);
+      font-size: 1.09em;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      background: none;
+    }
+    .account-number {
+      font-size: 0.97em;
+      color: var(--accent);
+      font-weight: 500;
+      opacity: 0.8;
+      margin-left: 0.2em;
+      letter-spacing: 0.03em;
+    }
+    .category {
+      font-size: 0.97em;
+      color: var(--secondary-dark);
+      font-weight: 500;
+      opacity: 0.9;
+      margin-left: 0.2em;
+    }
+    .overview-card {
+      background: linear-gradient(90deg, var(--secondary) 0%, var(--primary-light) 100%);
+      border-radius: 1.1rem;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 1.15em;
+      padding: 1.1em 1.5em;
+      margin: 1.2em 0 2em 0;
+      box-shadow: 0 2px 18px #6d28d940;
+    }
+    .diagram-container {
+      background: #f3f4f6;
+      border-radius: .7em;
+      padding: 0.8em 1em 0.4em 1em;
+      margin-bottom: 1.5em;
+      box-shadow: 0 2px 8px #06b6d410;
+      min-width: 250px;
+    }
+    .section-actions {
+      margin-bottom: 1em;
+      display: flex;
+      gap: 1em;
+      flex-wrap: wrap;
+    }
+    .reset-btn {
+      background: linear-gradient(90deg, var(--danger) 40%, var(--primary) 100%);
+      color: #fff;
+      border: none;
+      border-radius: 0.8em;
+      padding: 0.4em 1.2em;
+      font-weight: 700;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.2s;
+      box-shadow: 0 2px 8px #f43f5e30;
+    }
+    .reset-btn:hover {
+      background: linear-gradient(90deg, var(--primary-light) 10%, var(--danger) 100%);
+      color: var(--danger);
+    }
+    @media (max-width: 900px) {
+      main { padding: 1rem; }
+      .flex-row { flex-direction: column; gap: 0.5em; }
+      table { font-size: 0.97em; }
+    }
+    @media (max-width: 650px) {
+      main { padding: 0.2em; }
+      th, td { font-size: 0.95em; }
+      .overview-card { font-size: 1em; padding: 1em; }
+      .section-title-bar { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Min Ekonomi</h1>
+    <p>Budget, Resultat & Balansräkning för privatpersoner</p>
+  </header>
+  <nav>
+    <button class="active" onclick="showTab('budget')">Budget</button>
+    <button onclick="showTab('result')">Resultat</button>
+    <button onclick="showTab('balance')">Balansräkning</button>
+    <button onclick="showTab('overview')">Översikt</button>
+  </nav>
+  <main>
+    <!-- Budget -->
+    <section id="budget-section">
+      <div class="section-title-bar">
+        <h2>Budget (per månad)</h2>
+        <button class="add-row-btn" onclick="addBudgetRow()">+ Lägg till rad</button>
+        <button class="reset-btn" onclick="resetSection('budget')">Rensa budget</button>
+      </div>
+      <table id="budget-table">
+        <thead>
+          <tr>
+            <th>Kategori</th>
+            <th>Belopp</th>
+            <th>Kommentar</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr class="summary">
+            <td>Summa</td>
+            <td id="budget-sum"></td>
+            <td colspan="2"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+    <!-- Resultat -->
+    <section id="result-section" style="display:none">
+      <div class="section-title-bar">
+        <h2>Resultat (utfall denna månad)</h2>
+        <button class="add-row-btn" onclick="addResultRow()">+ Lägg till rad</button>
+        <button class="reset-btn" onclick="resetSection('result')">Rensa resultat</button>
+      </div>
+      <table id="result-table">
+        <thead>
+          <tr>
+            <th>Konto-nr</th>
+            <th>Kategori</th>
+            <th>Budget</th>
+            <th>Utfall</th>
+            <th>Diff</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr class="summary">
+            <td colspan="2">Summa</td>
+            <td id="result-budget-sum"></td>
+            <td id="result-actual-sum"></td>
+            <td id="result-diff-sum"></td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+    <!-- Balansräkning -->
+    <section id="balance-section" style="display:none">
+      <div class="flex-row">
+        <div style="flex:1; min-width:260px;">
+          <div class="section-title-bar">
+            <h3>Tillgångar</h3>
+            <button class="add-row-btn" onclick="addBalanceRow('assets')">+ Lägg till</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Konto-nr</th>
+                <th>Kategori</th>
+                <th>Belopp</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="assets-body"></tbody>
+            <tfoot>
+              <tr class="summary">
+                <td colspan="2">Summa tillgångar</td>
+                <td id="assets-sum"></td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <div style="flex:1; min-width:260px;">
+          <div class="section-title-bar">
+            <h3>Skulder</h3>
+            <button class="add-row-btn" onclick="addBalanceRow('debts')">+ Lägg till</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Konto-nr</th>
+                <th>Kategori</th>
+                <th>Belopp</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="debts-body"></tbody>
+            <tfoot>
+              <tr class="summary">
+                <td colspan="2">Summa skulder</td>
+                <td id="debts-sum"></td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      <div class="overview-card" style="margin-top:1.5em;">
+        <span>Eget kapital: </span>
+        <span id="capital-sum"></span>
+      </div>
+      <button class="reset-btn" onclick="resetSection('balance')">Rensa balansräkning</button>
+    </section>
+    <!-- Översikt -->
+    <section id="overview-section" style="display:none">
+      <div class="overview-card">
+        <p><strong>Månadens saldo:</strong> <span id="overview-saldo"></span></p>
+        <p><strong>Sparkvot:</strong> <span id="overview-save-rate"></span></p>
+        <p><strong>Eget kapital:</strong> <span id="overview-capital"></span></p>
+      </div>
+      <div class="diagram-container">
+        <h3 style="margin:0 0 0.5em 0;">Diagram: Budgetfördelning</h3>
+        <div id="overview-diagram"></div>
+      </div>
+      <button class="reset-btn" onclick="resetAll()">Rensa allt</button>
+    </section>
+  </main>
+  <script>
+    // ---- Data Structure ----
+    const defaultData = {
+      budget: [
+        { category: "Lön", value: 25000, comment: "Nettolön" },
+        { category: "Hyra", value: 9000, comment: "" },
+        { category: "Mat", value: 3500, comment: "" },
+        { category: "Sparande", value: 2000, comment: "" },
+        { category: "Övrigt", value: 1500, comment: "" }
+      ],
+      result: [
+        { account: "3010", category: "Lön", budget: 25000, actual: 25000 },
+        { account: "5010", category: "Hyra", budget: 9000, actual: 9000 },
+        { account: "5020", category: "Mat", budget: 3500, actual: 4000 },
+        { account: "3011", category: "Sparande", budget: 2000, actual: 1500 },
+        { account: "6999", category: "Övrigt", budget: 1500, actual: 2000 }
+      ],
+      assets: [
+        { account: "1930", category: "Bankkonto", value: 15000 },
+        { account: "1810", category: "Fonder/Aktier", value: 20000 },
+        { account: "1240", category: "Bil", value: 50000 }
+      ],
+      debts: [
+        { account: "2350", category: "Bolån", value: 300000 },
+        { account: "2351", category: "Billån", value: 10000 }
+      ]
+    };
+    let data = {};
+
+    // ---- Storage ----
+    function loadData() {
+      try {
+        const raw = localStorage.getItem('meq-data');
+        data = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(defaultData));
+      } catch {
+        data = JSON.parse(JSON.stringify(defaultData));
+      }
+    }
+    function saveData() {
+      localStorage.setItem('meq-data', JSON.stringify(data));
+    }
+    function resetSection(section) {
+      if (!confirm('Vill du rensa denna sektion?')) return;
+      data[section] = JSON.parse(JSON.stringify(defaultData[section]));
+      saveData();
+      renderAll();
+    }
+    function resetAll() {
+      if (!confirm('Vill du rensa ALLA SEKTIONER?')) return;
+      data = JSON.parse(JSON.stringify(defaultData));
+      saveData();
+      renderAll();
+    }
+
+    // ---- Budget ----
+    function renderBudget() {
+      const tbody = document.querySelector('#budget-table tbody');
+      tbody.innerHTML = '';
+      data.budget.forEach((row, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="text" value="${row.category}" onchange="editBudget(${i},'category',this.value)"></td>
+          <td><input type="number" value="${row.value}" onchange="editBudget(${i},'value',this.value)"></td>
+          <td><input type="text" value="${row.comment||''}" onchange="editBudget(${i},'comment',this.value)"></td>
+          <td><button class="remove-row-btn" onclick="removeBudgetRow(${i})" title="Ta bort rad">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      updateBudgetSum();
+    }
+    function editBudget(i, key, val) {
+      if (key === 'value') val = parseFloat(val) || 0;
+      data.budget[i][key] = val;
+      saveData();
+      renderBudget();
+      renderResult();
+      renderOverview();
+    }
+    function addBudgetRow() {
+      data.budget.push({ category: "", value: 0, comment: "" });
+      saveData(); renderBudget();
+    }
+    function removeBudgetRow(i) {
+      data.budget.splice(i, 1);
+      saveData(); renderBudget();
+    }
+    function updateBudgetSum() {
+      const sum = data.budget.reduce((s, r) => s + (parseFloat(r.value) || 0), 0);
+      document.getElementById('budget-sum').textContent = sum.toLocaleString('sv-SE');
+    }
+
+    // ---- Resultat ----
+    function renderResult() {
+      const tbody = document.querySelector('#result-table tbody');
+      tbody.innerHTML = '';
+      data.result.forEach((row, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="text" value="${row.account||""}" onchange="editResult(${i},'account',this.value)" placeholder="xxxx"></td>
+          <td><input type="text" value="${row.category||""}" onchange="editResult(${i},'category',this.value)" placeholder="Kategori"></td>
+          <td><input type="number" value="${row.budget||0}" onchange="editResult(${i},'budget',this.value)"></td>
+          <td><input type="number" value="${row.actual||0}" onchange="editResult(${i},'actual',this.value)"></td>
+          <td class="diff-cell"></td>
+          <td><button class="remove-row-btn" onclick="removeResultRow(${i})" title="Ta bort rad">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      updateResultSum();
+    }
+    function editResult(i, key, val) {
+      if (key === 'budget' || key === 'actual') val = parseFloat(val) || 0;
+      data.result[i][key] = val;
+      saveData();
+      renderResult();
+      renderOverview();
+    }
+    function addResultRow() {
+      data.result.push({ account: "", category: "", budget: 0, actual: 0 });
+      saveData(); renderResult();
+    }
+    function removeResultRow(i) {
+      data.result.splice(i, 1);
+      saveData(); renderResult();
+    }
+    function updateResultSum() {
+      let sumBudget=0, sumActual=0, sumDiff=0;
+      document.querySelectorAll('#result-table tbody tr').forEach((tr, i) => {
+        const budget = parseFloat(data.result[i].budget) || 0;
+        const actual = parseFloat(data.result[i].actual) || 0;
+        const diff = actual - budget;
+        const diffCell = tr.querySelector('.diff-cell');
+        diffCell.textContent = (diff >= 0 ? '+' : '') + diff.toLocaleString('sv-SE');
+        diffCell.className = 'diff-cell ' + (diff >= 0 ? 'positive':'negative');
+        sumBudget += budget;
+        sumActual += actual;
+        sumDiff += diff;
+      });
+      document.getElementById('result-budget-sum').textContent = sumBudget.toLocaleString('sv-SE');
+      document.getElementById('result-actual-sum').textContent = sumActual.toLocaleString('sv-SE');
+      document.getElementById('result-diff-sum').textContent = (sumDiff >= 0 ? '+' : '') + sumDiff.toLocaleString('sv-SE');
+      document.getElementById('result-diff-sum').className = sumDiff >= 0 ? 'positive' : 'negative';
+    }
+
+    // ---- Balansräkning ----
+    function renderBalance() {
+      renderBalanceSection('assets');
+      renderBalanceSection('debts');
+      updateBalance();
+    }
+    function renderBalanceSection(section) {
+      const tbody = document.getElementById(section+'-body');
+      tbody.innerHTML = '';
+      data[section].forEach((row, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="text" value="${row.account||""}" onchange="editBalance('${section}',${i},'account',this.value)" placeholder="xxxx"></td>
+          <td><input type="text" value="${row.category||""}" onchange="editBalance('${section}',${i},'category',this.value)" placeholder="Kategori"></td>
+          <td><input type="number" value="${row.value||0}" onchange="editBalance('${section}',${i},'value',this.value)"></td>
+          <td><button class="remove-row-btn" onclick="removeBalanceRow('${section}',${i})" title="Ta bort rad">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      // Update sum
+      const sum = data[section].reduce((s, r) => s + (parseFloat(r.value) || 0), 0);
+      document.getElementById(section+'-sum').textContent = sum.toLocaleString('sv-SE');
+    }
+    function editBalance(section, i, key, val) {
+      if (key === 'value') val = parseFloat(val) || 0;
+      data[section][i][key] = val;
+      saveData(); renderBalance();
+      renderOverview();
+    }
+    function addBalanceRow(section) {
+      data[section].push({ account: "", category: "", value: 0 });
+      saveData(); renderBalance();
+    }
+    function removeBalanceRow(section, i) {
+      data[section].splice(i, 1);
+      saveData(); renderBalance();
+    }
+    function updateBalance() {
+      const assets = data.assets.reduce((s, r) => s + (parseFloat(r.value) || 0), 0);
+      const debts = data.debts.reduce((s, r) => s + (parseFloat(r.value) || 0), 0);
+      const capital = assets - debts;
+      document.getElementById('capital-sum').textContent = capital.toLocaleString('sv-SE');
+      document.getElementById('capital-sum').className = capital >= 0 ? 'positive' : 'negative';
+    }
+
+    // ---- Översikt ----
+    function renderOverview() {
+      // Saldoberäkning
+      let income = 0, savings = 0, outgoings = 0;
+      data.result.forEach(r => {
+        if (r.budget > 0 || r.actual > 0) {
+          if ((r.category||"").toLowerCase().includes("lön")) income += r.actual||0;
+          else if ((r.category||"").toLowerCase().includes("spar")) savings += r.actual||0;
+          else outgoings += r.actual||0;
+        }
+      });
+      const saldo = income - (outgoings + savings);
+      document.getElementById('overview-saldo').textContent = saldo.toLocaleString('sv-SE');
+      document.getElementById('overview-saldo').className = saldo >= 0 ? 'positive' : 'negative';
+      // Sparkvot
+      let saveRate = income > 0 ? (savings / income * 100) : 0;
+      document.getElementById('overview-save-rate').textContent = saveRate.toFixed(1) + ' %';
+      // Eget kapital
+      const assets = data.assets.reduce((s, r) => s + (parseFloat(r.value) || 0), 0);
+      const debts = data.debts.reduce((s, r) => s + (parseFloat(r.value) || 0), 0);
+      const capital = assets - debts;
+      document.getElementById('overview-capital').textContent = capital.toLocaleString('sv-SE');
+      document.getElementById('overview-capital').className = capital >= 0 ? 'positive' : 'negative';
+      // Diagram
+      const cats = data.budget.map(b => b.category || "Okänd");
+      const vals = data.budget.map(b => parseFloat(b.value)||0);
+      const max = Math.max(...vals, 1);
+      const colors = ["#34d399","#06b6d4","#a78bfa","#4f46e5","#818cf8","#0ea5e9","#e879f9"];
+      let html = '';
+      vals.forEach((v,i) => {
+        const w = Math.round(210 * v / max);
+        html += `<div style="margin-bottom:0.7em;">
+          <span style="display:inline-block;width:90px">${cats[i]}</span>
+          <span class="diagram-bar" style="width:${w}px;background:${colors[i%colors.length]}"></span>
+          <span style="margin-left:0.5em">${v.toLocaleString('sv-SE')}</span>
+        </div>`;
+      });
+      document.getElementById('overview-diagram').innerHTML = html;
+    }
+
+    // ---- Navigation + Render ----
+    function showTab(tab) {
+      document.getElementById('budget-section').style.display = tab === 'budget' ? '' : 'none';
+      document.getElementById('result-section').style.display = tab === 'result' ? '' : 'none';
+      document.getElementById('balance-section').style.display = tab === 'balance' ? '' : 'none';
+      document.getElementById('overview-section').style.display = tab === 'overview' ? '' : 'none';
+      document.querySelectorAll('nav button').forEach((btn, i) => {
+        btn.classList.toggle('active',
+          (tab === 'budget' && i===0) ||
+          (tab === 'result' && i===1) ||
+          (tab === 'balance' && i===2) ||
+          (tab === 'overview' && i===3)
+        );
+      });
+      if (tab === 'overview') renderOverview();
+    }
+
+    function renderAll() {
+      renderBudget();
+      renderResult();
+      renderBalance();
+      renderOverview();
+    }
+
+    // ---- INIT ----
+    loadData();
+    renderAll();
+    // Save on every change
+    window.addEventListener('beforeunload', saveData);
+
+    // Hotkeys: [Ctrl+Shift+B] for balance, [Ctrl+Shift+R] for result, etc.
+    document.addEventListener('keydown', e => {
+      if (e.ctrlKey && e.shiftKey) {
+        if (e.key==='B' || e.key==='b') { showTab('balance'); e.preventDefault();}
+        if (e.key==='R' || e.key==='r') { showTab('result'); e.preventDefault();}
+        if (e.key==='O' || e.key==='o') { showTab('overview'); e.preventDefault();}
+        if (e.key==='U' || e.key==='u') { showTab('budget'); e.preventDefault();}
+      }
+    });
+  </script>
+</body>
+</html>
