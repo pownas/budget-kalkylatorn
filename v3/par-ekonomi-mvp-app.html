@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Par-ekonomi MVP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --primary: #6d28d9;
+      --secondary: #22d3ee;
+      --success: #34d399;
+      --danger: #f43f5e;
+      --gray: #f3f4f6;
+      --border: #d1d5db;
+      --card: #fff;
+    }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--gray);
+      margin: 0;
+      min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 2rem 1rem 1rem 1rem;
+      text-align: center;
+      border-radius: 0 0 1.2rem 1.2rem;
+    }
+    header h1 { margin: 0; font-size: 2.3em; }
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: -1rem;
+      background: none;
+    }
+    nav button {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-bottom: none;
+      padding: 0.8rem 1.2rem;
+      font-size: 1.05rem;
+      color: var(--primary);
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 1.2rem 1.2rem 0 0;
+      margin-bottom: -2px;
+      transition: all 0.18s;
+    }
+    nav button.active {
+      background: var(--secondary);
+      color: var(--primary);
+      border-bottom: 2px solid transparent;
+      box-shadow: 0 4px 12px #4f46e540;
+    }
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: var(--card);
+      padding: 2rem 1rem;
+      border-radius: 1.2rem;
+      box-shadow: 0 4px 24px #4f46e520;
+      min-height: 400px;
+    }
+    h2 {
+      color: var(--primary);
+      font-size: 1.3em;
+      font-weight: 800;
+      margin-top: 0.4em;
+    }
+    .section-bar {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+      margin-bottom: .4em;
+      margin-top: 1em;
+    }
+    .section-bar h3 {
+      margin: 0;
+      color: var(--secondary);
+      font-size: 1.07em;
+      font-weight: 600;
+      background: none;
+    }
+    .add-btn, .reset-btn {
+      background: linear-gradient(90deg, var(--success) 30%, var(--secondary) 100%);
+      color: white;
+      border: none;
+      border-radius: 0.8em;
+      padding: 0.35em 1.2em;
+      font-weight: 700;
+      font-size: 1em;
+      cursor: pointer;
+      margin-bottom: 0.5em;
+      margin-left: 0.4em;
+      transition: background 0.2s, color 0.2s;
+      box-shadow: 0 2px 8px #06b6d420;
+    }
+    .add-btn:hover { background: linear-gradient(90deg, var(--secondary) 40%, var(--primary) 100%);}
+    .reset-btn {
+      background: linear-gradient(90deg, var(--danger) 40%, var(--primary) 100%);
+      color: #fff;
+      margin-left: 0.4em;
+    }
+    .reset-btn:hover { background: linear-gradient(90deg, var(--primary) 10%, var(--danger) 100%); color: var(--danger);}
+    .remove-btn {
+      color: var(--danger);
+      background: none;
+      border: none;
+      font-size: 1.1em;
+      cursor: pointer;
+      font-weight: bold;
+      margin-left: 0.4em;
+      border-radius: 50%;
+      padding: 0 0.4em;
+      line-height: 1.3;
+      transition: background 0.15s;
+    }
+    .remove-btn:hover { background: #fee2e2; }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-bottom: 1.6rem;
+      background: white;
+      border-radius: 0.8rem;
+      overflow: hidden;
+      box-shadow: 0 2px 8px #06b6d420;
+    }
+    th, td {
+      border-bottom: 1px solid var(--border);
+      padding: 0.6rem 0.5rem;
+      text-align: left;
+      font-size: 1em;
+      vertical-align: middle;
+    }
+    th {
+      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 80%);
+      color: white;
+      font-weight: 700;
+    }
+    tr:last-child td, tr:last-child th { border-bottom: none; }
+    input[type="number"], input[type="text"], select {
+      padding: 0.3em 0.5em;
+      font-size: 1em;
+      border: 1.5px solid var(--border);
+      border-radius: 0.5em;
+      background: #f3f4f6;
+      color: #222;
+      width: 90%;
+      transition: border 0.2s;
+    }
+    input[type="number"]:focus, input[type="text"]:focus, select:focus {
+      border: 1.5px solid var(--primary);
+      outline: none;
+      background: #e0e7ef;
+    }
+    .summary {
+      font-weight: bold;
+      background: var(--gray);
+      color: var(--primary);
+      font-size: 1.06em;
+    }
+    .positive { color: var(--success); font-weight: 600; }
+    .negative { color: var(--danger); font-weight: 600; }
+    .diff-cell { font-weight: 600; }
+    .rapport {
+      margin-top: 1.2em;
+      background: #f9fafb;
+      border-radius: 0.8em;
+      padding: 1em 1em 0.5em 1em;
+      box-shadow: 0 2px 8px #6d28d930;
+    }
+    @media (max-width: 900px) {
+      main { padding: 1rem; }
+      th, td { font-size: 0.95em; }
+    }
+    @media (max-width: 650px) {
+      main { padding: 0.1em; }
+      th, td { font-size: 0.92em; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Par-ekonomi</h1>
+    <div style="font-size:1.1em;opacity:.8;margin-top:0.3em;">MVP för gemensam hushållsekonomi</div>
+  </header>
+  <nav>
+    <button class="active" onclick="showTab('users')">Användare</button>
+    <button onclick="showTab('accounts')">Konton</button>
+    <button onclick="showTab('categories')">Kategorier</button>
+    <button onclick="showTab('transactions')">Transaktioner</button>
+    <button onclick="showTab('report')">Rapport</button>
+  </nav>
+  <main>
+    <!-- Användare -->
+    <section id="users-section">
+      <div class="section-bar">
+        <h2>Användare</h2>
+        <button class="add-btn" onclick="addUser()">+ Lägg till användare</button>
+        <button class="reset-btn" onclick="resetSection('users')">Rensa</button>
+      </div>
+      <table>
+        <thead><tr><th>Namn</th><th></th></tr></thead>
+        <tbody id="users-tbody"></tbody>
+      </table>
+    </section>
+    <!-- Konton -->
+    <section id="accounts-section" style="display:none">
+      <div class="section-bar">
+        <h2>Bankkonton</h2>
+        <button class="add-btn" onclick="addAccount()">+ Lägg till konto</button>
+        <button class="reset-btn" onclick="resetSection('accounts')">Rensa</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Namn</th>
+            <th>Ägare</th>
+            <th>Saldo</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="accounts-tbody"></tbody>
+      </table>
+    </section>
+    <!-- Kategorier -->
+    <section id="categories-section" style="display:none">
+      <div class="section-bar">
+        <h2>Kategorier</h2>
+        <button class="add-btn" onclick="addCategory()">+ Lägg till kategori</button>
+        <button class="reset-btn" onclick="resetSection('categories')">Rensa</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Namn</th>
+            <th>Fördelning (%)</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="categories-tbody"></tbody>
+      </table>
+    </section>
+    <!-- Transaktioner -->
+    <section id="transactions-section" style="display:none">
+      <div class="section-bar">
+        <h2>Transaktioner</h2>
+        <button class="add-btn" onclick="addTransaction()">+ Lägg till transaktion</button>
+        <button class="reset-btn" onclick="resetSection('transactions')">Rensa</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Datum</th>
+            <th>Kategori</th>
+            <th>Belopp</th>
+            <th>Betalat av</th>
+            <th>Konto</th>
+            <th>Gemensam</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="transactions-tbody"></tbody>
+      </table>
+    </section>
+    <!-- Rapport -->
+    <section id="report-section" style="display:none">
+      <div class="section-bar">
+        <h2>Rapport / Utjämning</h2>
+        <button class="reset-btn" onclick="resetAll()">Rensa ALLT</button>
+      </div>
+      <div class="rapport" id="rapport"></div>
+    </section>
+  </main>
+  <script>
+    // --- Data ---
+    const defaultData = {
+      users: [
+        { id: 1, name: "Anna" },
+        { id: 2, name: "Bertil" }
+      ],
+      accounts: [
+        { id: 1, name: "Annas lönekonto", ownerId: 1, balance: 12000 },
+        { id: 2, name: "Bertils lönekonto", ownerId: 2, balance: 13000 },
+        { id: 3, name: "Gemensamt matkonto", ownerId: null, balance: 5000 }
+      ],
+      categories: [
+        { id: 1, name: "Hyra", split: [60, 40] },
+        { id: 2, name: "Mat", split: [50, 50] },
+        { id: 3, name: "Bensin", split: [100, 0] }
+      ],
+      transactions: [
+        { id: 1, accountId: 3, payerId: 1, amount: 1000, categoryId: 2, date: "2025-08-01", shared: true },
+        { id: 2, accountId: 2, payerId: 2, amount: 9000, categoryId: 1, date: "2025-08-01", shared: true },
+        { id: 3, accountId: 1, payerId: 1, amount: 400, categoryId: 3, date: "2025-08-03", shared: false }
+      ]
+    };
+    let data = {};
+
+    // --- Storage ---
+    function saveData() {
+      localStorage.setItem('par-ekonomi-mvp', JSON.stringify(data));
+    }
+    function loadData() {
+      const raw = localStorage.getItem('par-ekonomi-mvp');
+      data = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(defaultData));
+    }
+    function resetSection(section) {
+      if (!confirm('Vill du rensa denna sektion?')) return;
+      data[section] = JSON.parse(JSON.stringify(defaultData[section]));
+      saveData(); renderAll();
+    }
+    function resetAll() {
+      if (!confirm('Vill du rensa ALLT?')) return;
+      data = JSON.parse(JSON.stringify(defaultData));
+      saveData(); renderAll();
+    }
+
+    // --- Navigation ---
+    function showTab(tab) {
+      document.getElementById('users-section').style.display = tab === 'users' ? '' : 'none';
+      document.getElementById('accounts-section').style.display = tab === 'accounts' ? '' : 'none';
+      document.getElementById('categories-section').style.display = tab === 'categories' ? '' : 'none';
+      document.getElementById('transactions-section').style.display = tab === 'transactions' ? '' : 'none';
+      document.getElementById('report-section').style.display = tab === 'report' ? '' : 'none';
+      document.querySelectorAll('nav button').forEach((btn, i) => {
+        btn.classList.toggle('active',
+          (tab === 'users' && i === 0) ||
+          (tab === 'accounts' && i === 1) ||
+          (tab === 'categories' && i === 2) ||
+          (tab === 'transactions' && i === 3) ||
+          (tab === 'report' && i === 4)
+        );
+      });
+      if (tab === 'report') renderReport();
+    }
+
+    // --- Users ---
+    function renderUsers() {
+      const tbody = document.getElementById('users-tbody');
+      tbody.innerHTML = '';
+      data.users.forEach((user, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="text" value="${user.name}" onchange="editUser(${i},this.value)"></td>
+          <td><button class="remove-btn" onclick="removeUser(${i})" title="Ta bort användare">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    function addUser() {
+      data.users.push({ id: Date.now(), name: "" });
+      saveData(); renderUsers();
+    }
+    function removeUser(i) {
+      data.users.splice(i, 1);
+      saveData(); renderUsers();
+    }
+    function editUser(i, val) {
+      data.users[i].name = val;
+      saveData();
+    }
+
+    // --- Accounts ---
+    function renderAccounts() {
+      const tbody = document.getElementById('accounts-tbody');
+      tbody.innerHTML = '';
+      data.accounts.forEach((acc, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="text" value="${acc.name}" onchange="editAccount(${i},'name',this.value)"></td>
+          <td>
+            <select onchange="editAccount(${i},'ownerId',this.value)">
+              <option value="">Gemensamt</option>
+              ${data.users.map(u => `<option value="${u.id}" ${acc.ownerId == u.id ? 'selected' : ''}>${u.name}</option>`).join('')}
+            </select>
+          </td>
+          <td><input type="number" value="${acc.balance}" onchange="editAccount(${i},'balance',this.value)"></td>
+          <td><button class="remove-btn" onclick="removeAccount(${i})" title="Ta bort konto">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    function addAccount() {
+      data.accounts.push({ id: Date.now(), name: "", ownerId: null, balance: 0 });
+      saveData(); renderAccounts();
+    }
+    function removeAccount(i) {
+      data.accounts.splice(i, 1);
+      saveData(); renderAccounts();
+    }
+    function editAccount(i, key, val) {
+      if (key === 'ownerId') val = val === "" ? null : parseInt(val);
+      if (key === 'balance') val = parseFloat(val) || 0;
+      data.accounts[i][key] = val;
+      saveData();
+    }
+
+    // --- Categories ---
+    function renderCategories() {
+      const tbody = document.getElementById('categories-tbody');
+      tbody.innerHTML = '';
+      data.categories.forEach((cat, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="text" value="${cat.name}" onchange="editCategory(${i},'name',this.value)"></td>
+          <td>
+            ${data.users.map((u, idx) =>
+              `<span>${u.name} <input type="number" min="0" max="100" style="width:60px" value="${cat.split[idx]||0}" onchange="editCategorySplit(${i},${idx},this.value)">%</span>`
+            ).join('<br>')}
+          </td>
+          <td><button class="remove-btn" onclick="removeCategory(${i})" title="Ta bort kategori">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    function addCategory() {
+      data.categories.push({ id: Date.now(), name: "", split: Array(data.users.length).fill(0) });
+      saveData(); renderCategories();
+    }
+    function removeCategory(i) {
+      data.categories.splice(i, 1);
+      saveData(); renderCategories();
+    }
+    function editCategory(i, key, val) {
+      data.categories[i][key] = val;
+      saveData();
+    }
+    function editCategorySplit(i, idx, val) {
+      data.categories[i].split[idx] = parseInt(val) || 0;
+      saveData();
+    }
+
+    // --- Transactions ---
+    function renderTransactions() {
+      const tbody = document.getElementById('transactions-tbody');
+      tbody.innerHTML = '';
+      data.transactions.forEach((trn, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="date" value="${trn.date}" onchange="editTransaction(${i},'date',this.value)"></td>
+          <td>
+            <select onchange="editTransaction(${i},'categoryId',this.value)">
+              ${data.categories.map(c => `<option value="${c.id}" ${trn.categoryId==c.id?'selected':''}>${c.name}</option>`).join('')}
+            </select>
+          </td>
+          <td><input type="number" value="${trn.amount}" onchange="editTransaction(${i},'amount',this.value)"></td>
+          <td>
+            <select onchange="editTransaction(${i},'payerId',this.value)">
+              ${data.users.map(u=>`<option value="${u.id}" ${trn.payerId==u.id?'selected':''}>${u.name}</option>`).join('')}
+            </select>
+          </td>
+          <td>
+            <select onchange="editTransaction(${i},'accountId',this.value)">
+              ${data.accounts.map(a=>`<option value="${a.id}" ${trn.accountId==a.id?'selected':''}>${a.name}</option>`).join('')}
+            </select>
+          </td>
+          <td><input type="checkbox" ${trn.shared?'checked':''} onchange="editTransaction(${i},'shared',this.checked)"></td>
+          <td><button class="remove-btn" onclick="removeTransaction(${i})" title="Ta bort transaktion">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    function addTransaction() {
+      data.transactions.push({
+        id: Date.now(), date: new Date().toISOString().slice(0,10),
+        categoryId: data.categories[0]?.id || null, amount: 0,
+        payerId: data.users[0]?.id || null,
+        accountId: data.accounts[0]?.id || null,
+        shared: true
+      });
+      saveData(); renderTransactions();
+    }
+    function removeTransaction(i) {
+      data.transactions.splice(i, 1);
+      saveData(); renderTransactions();
+    }
+    function editTransaction(i, key, val) {
+      if (key === 'categoryId' || key === 'payerId' || key === 'accountId') val = parseInt(val);
+      if (key === 'amount') val = parseFloat(val) || 0;
+      if (key === 'shared') val = !!val;
+      data.transactions[i][key] = val;
+      saveData();
+    }
+
+    // --- Rapport ---
+    function renderReport() {
+      const rapport = document.getElementById('rapport');
+      const users = data.users;
+      if (users.length < 2) {
+        rapport.innerHTML = "<b>Lägg till minst två användare för att se rapporten.</b>";
+        return;
+      }
+      // Summera per transaktion
+      let totalsPaid = Array(users.length).fill(0);
+      let totalsShouldPaid = Array(users.length).fill(0);
+      let rows = data.transactions.map(trn => {
+        const cat = data.categories.find(c => c.id == trn.categoryId) || {};
+        const payerIdx = users.findIndex(u => u.id == trn.payerId);
+        const catSplit = trn.shared ? (cat.split || Array(users.length).fill(0)) : users.map((_,i)=>i==payerIdx?100:0);
+        // Andelar
+        const splits = catSplit.map(p => Math.round(trn.amount * (p/100)));
+        splits.forEach((s,idx) => totalsShouldPaid[idx] += s);
+        totalsPaid[payerIdx] += trn.amount;
+        return {
+          date: trn.date,
+          category: cat.name || "",
+          amount: trn.amount,
+          payer: users[payerIdx]?.name || "",
+          shared: trn.shared ? `Gemensam (${catSplit.map((p,idx)=>users[idx].name+' '+p+'%').join('/')})` : `Individuell (${users[payerIdx]?.name})`,
+          split: splits
+        };
+      });
+      // Tabell
+      let html = `<table>
+        <thead>
+          <tr>
+            <th>Datum</th><th>Kategori</th><th>Belopp</th><th>Vem betalat</th><th>Gemensam/Individuell</th>
+            ${users.map(u=>`<th>Andel ${u.name}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r=>`
+            <tr>
+              <td>${r.date}</td>
+              <td>${r.category}</td>
+              <td>${r.amount}</td>
+              <td>${r.payer}</td>
+              <td>${r.shared}</td>
+              ${r.split.map(a=>`<td>${a}</td>`).join('')}
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+      // Summering
+      html += `<div style="margin:1em 0 0.5em 0; font-weight:bold">Summering</div><table>
+        <tr>
+          <td></td>
+          ${users.map(u=>`<th>${u.name}</th>`).join('')}
+        </tr>
+        <tr>
+          <td>Betalat</td>
+          ${totalsPaid.map(a=>`<td>${a}</td>`).join('')}
+        </tr>
+        <tr>
+          <td>Borde ha betalat</td>
+          ${totalsShouldPaid.map(a=>`<td>${a}</td>`).join('')}
+        </tr>
+        <tr>
+          <td>Skillnad</td>
+          ${totalsPaid.map((a,i)=> {
+            const diff = a - totalsShouldPaid[i];
+            return `<td class="${diff>=0?'positive':'negative'}">${diff>=0?'+':''}${diff}</td>`;
+          }).join('')}
+        </tr>
+      </table>`;
+      // Förslag utjämning
+      // (För två personer: den med plus betalar den med minus)
+      if (users.length == 2) {
+        const diff = totalsPaid[0] - totalsShouldPaid[0];
+        if (diff > 0) {
+          html += `<div style="margin-top:1em;">${users[1].name} bör betala ${diff} kr till ${users[0].name} för att ni ska vara kvitt.</div>`;
+        } else if (diff < 0) {
+          html += `<div style="margin-top:1em;">${users[0].name} bör betala ${-diff} kr till ${users[1].name} för att ni ska vara kvitt.</div>`;
+        } else {
+          html += `<div style="margin-top:1em;">Ni är kvitt!</div>`;
+        }
+      }
+      rapport.innerHTML = html;
+    }
+
+    // --- Render All ---
+    function renderAll() {
+      renderUsers();
+      renderAccounts();
+      renderCategories();
+      renderTransactions();
+      renderReport();
+    }
+
+    // --- Init ---
+    loadData();
+    renderAll();
+
+    // Spara på alla ändringar via input/select
+    document.body.addEventListener('input', (e)=>{
+      if(['INPUT','SELECT'].includes(e.target.tagName)) saveData();
+    });
+
+    // Hotkeys för navigation
+    document.addEventListener('keydown', e => {
+      if (e.ctrlKey && e.shiftKey) {
+        if (e.key==='U' || e.key==='u') { showTab('users'); e.preventDefault();}
+        if (e.key==='K' || e.key==='k') { showTab('accounts'); e.preventDefault();}
+        if (e.key==='C' || e.key==='c') { showTab('categories'); e.preventDefault();}
+        if (e.key==='T' || e.key==='t') { showTab('transactions'); e.preventDefault();}
+        if (e.key==='R' || e.key==='r') { showTab('report'); e.preventDefault();}
+      }
+    });
+  </script>
+</body>
+</html>
