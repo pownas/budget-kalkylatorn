@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Min Ekonomi – Budget & Balans</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; margin: 0; background: #f6f8fa; }
+    header { background: #374151; color: white; padding: 1rem; text-align: center;}
+    nav { display: flex; justify-content: center; gap: 1rem; background: #d1d5db; }
+    nav button { background: none; border: none; padding: 1rem; font-size: 1rem; cursor: pointer; }
+    nav button.active { background: #374151; color: white; border-radius: 5px 5px 0 0; }
+    main { max-width: 600px; margin: 2rem auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 6px #0001; }
+    h2 { margin-top: 0; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+    th, td { border: 1px solid #e5e7eb; padding: 0.5rem; text-align: left; }
+    tr:nth-child(even) { background: #f3f4f6; }
+    .summary { font-weight: bold; background: #e0e7ef; }
+    .positive { color: green; }
+    .negative { color: #e11d48; }
+    .diff-cell { font-weight: bold; }
+    .diagram-bar { height: 20px; display: inline-block; vertical-align: middle; }
+    @media (max-width: 700px) {
+      main { padding: 1rem; }
+      table, thead, tbody, th, td, tr { font-size: 0.95em; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Min Ekonomi</h1>
+    <p>Budget, Resultat & Balansräkning för privatpersoner</p>
+  </header>
+  <nav>
+    <button class="active" onclick="showTab('budget')">Budget</button>
+    <button onclick="showTab('result')">Resultat</button>
+    <button onclick="showTab('balance')">Balansräkning</button>
+    <button onclick="showTab('overview')">Översikt</button>
+  </nav>
+  <main>
+    <!-- Budget -->
+    <section id="budget-section">
+      <h2>Budget (per månad)</h2>
+      <table id="budget-table">
+        <thead>
+          <tr><th>Kategori</th><th>Belopp</th><th>Kommentar</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Lön</td><td><input type="number" data-key="budget-0" value="25000"></td><td><input data-key="budget-0c" value="Nettolön"></td></tr>
+          <tr><td>Hyra</td><td><input type="number" data-key="budget-1" value="9000"></td><td><input data-key="budget-1c"></td></tr>
+          <tr><td>Mat</td><td><input type="number" data-key="budget-2" value="3500"></td><td><input data-key="budget-2c"></td></tr>
+          <tr><td>Sparande</td><td><input type="number" data-key="budget-3" value="2000"></td><td><input data-key="budget-3c"></td></tr>
+          <tr><td>Övrigt</td><td><input type="number" data-key="budget-4" value="1500"></td><td><input data-key="budget-4c"></td></tr>
+        </tbody>
+        <tfoot>
+          <tr class="summary">
+            <td>Summa</td>
+            <td id="budget-sum"></td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+    <!-- Resultat -->
+    <section id="result-section" style="display:none">
+      <h2>Resultat (utfall denna månad)</h2>
+      <table id="result-table">
+        <thead>
+          <tr>
+            <th>Kategori</th>
+            <th>Budget</th>
+            <th>Utfall</th>
+            <th>Diff</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Lön</td>
+            <td><span class="budget-cell"></span></td>
+            <td><input type="number" data-key="result-0" value="25000"></td>
+            <td class="diff-cell"></td>
+          </tr>
+          <tr>
+            <td>Hyra</td>
+            <td><span class="budget-cell"></span></td>
+            <td><input type="number" data-key="result-1" value="9000"></td>
+            <td class="diff-cell"></td>
+          </tr>
+          <tr>
+            <td>Mat</td>
+            <td><span class="budget-cell"></span></td>
+            <td><input type="number" data-key="result-2" value="4000"></td>
+            <td class="diff-cell"></td>
+          </tr>
+          <tr>
+            <td>Sparande</td>
+            <td><span class="budget-cell"></span></td>
+            <td><input type="number" data-key="result-3" value="1500"></td>
+            <td class="diff-cell"></td>
+          </tr>
+          <tr>
+            <td>Övrigt</td>
+            <td><span class="budget-cell"></span></td>
+            <td><input type="number" data-key="result-4" value="2000"></td>
+            <td class="diff-cell"></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="summary">
+            <td>Summa</td>
+            <td id="result-budget-sum"></td>
+            <td id="result-actual-sum"></td>
+            <td id="result-diff-sum"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+    <!-- Balansräkning -->
+    <section id="balance-section" style="display:none">
+      <h2>Balansräkning</h2>
+      <table>
+        <thead>
+          <tr><th>Tillgångar</th><th>Belopp</th></tr>
+        </thead>
+        <tbody id="assets-body">
+          <tr><td>Bankkonto</td><td><input type="number" data-key="asset-0" value="15000"></td></tr>
+          <tr><td>Fonder/Aktier</td><td><input type="number" data-key="asset-1" value="20000"></td></tr>
+          <tr><td>Bil</td><td><input type="number" data-key="asset-2" value="50000"></td></tr>
+        </tbody>
+        <tfoot>
+          <tr class="summary">
+            <td>Summa tillgångar</td>
+            <td id="assets-sum"></td>
+          </tr>
+        </tfoot>
+      </table>
+      <table>
+        <thead>
+          <tr><th>Skulder</th><th>Belopp</th></tr>
+        </thead>
+        <tbody id="debts-body">
+          <tr><td>Bolån</td><td><input type="number" data-key="debt-0" value="300000"></td></tr>
+          <tr><td>Billån</td><td><input type="number" data-key="debt-1" value="10000"></td></tr>
+        </tbody>
+        <tfoot>
+          <tr class="summary">
+            <td>Summa skulder</td>
+            <td id="debts-sum"></td>
+          </tr>
+        </tfoot>
+      </table>
+      <div class="summary" style="margin-top:1em;">
+        <span>Eget kapital: </span>
+        <span id="capital-sum"></span>
+      </div>
+    </section>
+    <!-- Översikt -->
+    <section id="overview-section" style="display:none">
+      <h2>Översikt</h2>
+      <div>
+        <p><strong>Månadens saldo:</strong> <span id="overview-saldo"></span></p>
+        <p><strong>Sparkvot:</strong> <span id="overview-save-rate"></span></p>
+        <p><strong>Förändring i eget kapital:</strong> <span id="overview-capital-change"></span></p>
+      </div>
+      <h3>Diagram: Budgetfördelning</h3>
+      <div id="overview-diagram"></div>
+    </section>
+  </main>
+  <script>
+    // Helpers for localStorage
+    function saveValue(key, value) {
+      localStorage.setItem(key, value);
+    }
+    function loadValue(key, fallback) {
+      const val = localStorage.getItem(key);
+      return val !== null ? val : fallback;
+    }
+    function saveAllInputs() {
+      document.querySelectorAll('input[data-key]').forEach(inp => {
+        saveValue(inp.dataset.key, inp.value);
+      });
+    }
+    function loadAllInputs() {
+      document.querySelectorAll('input[data-key]').forEach(inp => {
+        inp.value = loadValue(inp.dataset.key, inp.value);
+      });
+    }
+    function setupInputListeners() {
+      document.querySelectorAll('input[data-key]').forEach(inp => {
+        inp.addEventListener('input', () => {
+          saveValue(inp.dataset.key, inp.value);
+          updateBudgetSum();
+          syncBudgetToResult();
+          updateResultSum();
+          updateBalance();
+        });
+      });
+    }
+
+    function showTab(tab) {
+      document.getElementById('budget-section').style.display = tab === 'budget' ? '' : 'none';
+      document.getElementById('result-section').style.display = tab === 'result' ? '' : 'none';
+      document.getElementById('balance-section').style.display = tab === 'balance' ? '' : 'none';
+      document.getElementById('overview-section').style.display = tab === 'overview' ? '' : 'none';
+      document.querySelectorAll('nav button').forEach((btn, i) => {
+        btn.classList.toggle('active',
+          (tab === 'budget' && i===0) ||
+          (tab === 'result' && i===1) ||
+          (tab === 'balance' && i===2) ||
+          (tab === 'overview' && i===3)
+        );
+      });
+      if (tab === 'result') syncBudgetToResult();
+      if (tab === 'overview') updateOverview();
+    }
+
+    function updateBudgetSum() {
+      const table = document.getElementById('budget-table');
+      let sum = 0;
+      table.querySelectorAll('tbody tr').forEach(tr => {
+        const val = parseFloat(tr.children[1].children[0].value) || 0;
+        sum += val;
+      });
+      document.getElementById('budget-sum').textContent = sum.toLocaleString('sv-SE');
+    }
+
+    function syncBudgetToResult() {
+      const budgetInputs = Array.from(document.querySelectorAll('#budget-table tbody tr td:nth-child(2) input'));
+      const budgetCells = document.querySelectorAll('#result-table .budget-cell');
+      let sum = 0;
+      budgetInputs.forEach((input, i) => {
+        const val = parseFloat(input.value) || 0;
+        budgetCells[i].textContent = val.toLocaleString('sv-SE');
+        sum += val;
+      });
+      document.getElementById('result-budget-sum').textContent = sum.toLocaleString('sv-SE');
+      updateResultSum();
+    }
+
+    function updateResultSum() {
+      const budgetCells = document.querySelectorAll('#result-table .budget-cell');
+      const actualInputs = document.querySelectorAll('#result-table tbody tr td:nth-child(3) input');
+      let sumBudget = 0, sumActual = 0, sumDiff = 0;
+      document.querySelectorAll('#result-table tbody tr').forEach((tr, i) => {
+        const budget = parseFloat(budgetCells[i].textContent.replace(/\s/g, '') || 0);
+        const actual = parseFloat(actualInputs[i].value) || 0;
+        const diff = actual - budget;
+        const diffCell = tr.querySelector('.diff-cell');
+        diffCell.textContent = diff >= 0 ? '+'+diff : diff;
+        diffCell.className = 'diff-cell ' + (diff >= 0 ? 'positive':'negative');
+        sumBudget += budget;
+        sumActual += actual;
+        sumDiff += diff;
+      });
+      document.getElementById('result-budget-sum').textContent = sumBudget.toLocaleString('sv-SE');
+      document.getElementById('result-actual-sum').textContent = sumActual.toLocaleString('sv-SE');
+      document.getElementById('result-diff-sum').textContent = (sumDiff >= 0 ? '+' : '') + sumDiff.toLocaleString('sv-SE');
+      document.getElementById('result-diff-sum').className = sumDiff >= 0 ? 'positive' : 'negative';
+    }
+
+    function updateBalance() {
+      let assets = 0, debts = 0;
+      document.querySelectorAll('#assets-body input').forEach(inp => assets += parseFloat(inp.value) || 0);
+      document.querySelectorAll('#debts-body input').forEach(inp => debts += parseFloat(inp.value) || 0);
+      document.getElementById('assets-sum').textContent = assets.toLocaleString('sv-SE');
+      document.getElementById('debts-sum').textContent = debts.toLocaleString('sv-SE');
+      const capital = assets - debts;
+      document.getElementById('capital-sum').textContent = capital.toLocaleString('sv-SE');
+      document.getElementById('capital-sum').className = capital >= 0 ? 'positive' : 'negative';
+    }
+
+    function updateOverview() {
+      const actualInputs = document.querySelectorAll('#result-table tbody tr td:nth-child(3) input');
+      const budgetCells = document.querySelectorAll('#result-table .budget-cell');
+      let income = parseFloat(actualInputs[0].value) || 0;
+      let savings = parseFloat(actualInputs[3].value) || 0;
+      let total = 0, outgoings = 0;
+      actualInputs.forEach((inp, i) => {
+        const val = parseFloat(inp.value) || 0;
+        total += val;
+        if (i > 0) outgoings += val;
+      });
+      const saldo = income - outgoings;
+      document.getElementById('overview-saldo').textContent = saldo.toLocaleString('sv-SE');
+      document.getElementById('overview-saldo').className = saldo >= 0 ? 'positive' : 'negative';
+
+      const saveRate = income > 0 ? (savings / income * 100) : 0;
+      document.getElementById('overview-save-rate').textContent = saveRate.toFixed(1) + ' %';
+
+      document.getElementById('overview-capital-change').textContent = (saldo + savings).toLocaleString('sv-SE');
+
+      const cats = ['Lön','Hyra','Mat','Sparande','Övrigt'];
+      const vals = Array.from(budgetCells).map(c => parseFloat(c.textContent.replace(/\s/g, '')) || 0);
+      const max = Math.max(...vals, 1);
+      const colors = ['#16a34a', '#f59e42', '#fbbf24', '#60a5fa', '#e11d48'];
+      let html = '';
+      vals.forEach((v,i) => {
+        const w = Math.round(200 * v / max);
+        html += `<div>
+          <span style="display:inline-block;width:80px">${cats[i]}</span>
+          <span class="diagram-bar" style="width:${w}px;background:${colors[i]}"></span>
+          <span style="margin-left:0.5em">${v.toLocaleString('sv-SE')}</span>
+        </div>`;
+      });
+      document.getElementById('overview-diagram').innerHTML = html;
+    }
+
+    // Init
+    loadAllInputs();
+    setupInputListeners();
+    updateBudgetSum();
+    syncBudgetToResult();
+    updateResultSum();
+    updateBalance();
+
+    // Spara på alla inputs även vid ändring utanför listeners (ex: autofyll)
+    window.addEventListener('beforeunload', saveAllInputs);
+  </script>
+</body>
+</html>
